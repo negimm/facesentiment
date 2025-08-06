@@ -7,9 +7,13 @@ from langchain.tools import tool
 from langchain_core.messages import HumanMessage
 from dotenv import load_dotenv
 from PIL import Image
+from langchain_community.tools.tavily_search import TavilySearchResults
 
 # Load environment variables from a .env file
 load_dotenv()
+
+# Initialize the Tavily search tool once to be reused.
+tavily_tool = TavilySearchResults()
 
 @tool
 def search_web_content(query: str) -> str:
@@ -17,8 +21,6 @@ def search_web_content(query: str) -> str:
     Searches the web for relevant content based on a given query using Tavily.
     Note: Ensure TAVILY_API_KEY is set in your .env file for this to work.
     """
-    from langchain_community.tools.tavily_search import TavilySearchResults
-    tavily_tool = TavilySearchResults()
     results = tavily_tool.invoke({"query": query})
     return results
 
@@ -66,11 +68,11 @@ def analyze_facial_expression(image_path: str) -> str:
     except Exception as e:
         return f"An error occurred during image analysis: {e}"
 
-def create_emotion_agent(api_key: str) -> AgentExecutor:
+def create_emotion_agent() -> AgentExecutor:
     """
     Creates and returns a LangChain agent configured with Google Gemini.
     """
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", google_api_key=api_key, temperature=0.7)
+    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.7)
     tools = [search_web_content, analyze_facial_expression]
     prompt = hub.pull("hwchase17/react")
     agent = create_react_agent(llm, tools, prompt)
@@ -84,11 +86,13 @@ def get_content_suggestions(image_path: str, agent_executor: AgentExecutor):
         print("No image path provided. Cannot get suggestions.")
         return
 
-    # Sanitize the path for the prompt to avoid issues with backslashes on Windows by escaping them.
-    # This is the definitive way to ensure paths are handled correctly by the agent.
-    sanitized_path = image_path.replace("\\", "\\\\")
-    prompt_text = f"A user has provided an image of their face at the path '{sanitized_path}'. First, use the 'analyze_facial_expression' tool to determine their emotion from the image. Then, based on that emotion, use the 'search_web_content' tool to find some uplifting and engaging content (like articles, videos, or activities) to help them. Finally, present the suggestions to the user with a concise summary and a link to the source if possible."
+    # The agent is now smart enough to know which tool to use based on the input.
+    # We provide the image_path directly in the input dictionary.
+    prompt_text = "A user has provided an image of their face. First, analyze their emotion from the image. Then, find uplifting content (articles, videos, activities) based on that emotion. Finally, present the suggestions to the user with a concise summary and a link."
     print("\nAsking agent for content suggestions...")
-    response = agent_executor.invoke({"input": prompt_text})
+    response = agent_executor.invoke({
+        "input": prompt_text,
+        "image_path": image_path
+    })
     print("\n--- Suggested Content ---")
     print(response["output"])
