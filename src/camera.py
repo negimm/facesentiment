@@ -1,16 +1,14 @@
 import cv2
 import os
+import tempfile
 
-def capture_face_image(filename: str = "captured_face.jpg") -> str | None:
+def capture_face_image() -> str | None:
     """
-    Opens a webcam feed. When the user presses 'c', it captures the frame,
-    and saves it as a JPG file in the current working directory.
-
-    Args:
-        filename: The name of the file to save the image as.
+    Opens a webcam feed. When the user presses 'c', it captures the frame
+    and saves it as a temporary JPG file.
 
     Returns:
-        The absolute path to the saved image, or None if the user quits.
+        The path to the saved temporary image file, or None if the user quits.
     """
     cap = cv2.VideoCapture(0)
 
@@ -18,10 +16,10 @@ def capture_face_image(filename: str = "captured_face.jpg") -> str | None:
         print("Error: Could not open webcam.")
         return None
 
-    saved_filename = None
+    saved_filepath = None
     try:
         print("\n--- Webcam Active ---")
-        print(f"Position your face and press 'c' to capture. Image will be saved as {filename}")
+        print("Position your face and press 'c' to capture.")
         print("Press 'q' to quit.")
 
         while True:
@@ -37,13 +35,15 @@ def capture_face_image(filename: str = "captured_face.jpg") -> str | None:
                 print("Exiting webcam.")
                 break
             elif key == ord('c'):
-                print(f"\nCapturing image and saving to {filename}...")
-                cv2.imwrite(filename, frame)
-                print("Image saved.")
-                saved_filename = os.path.abspath(filename)
+                # Create a temporary file to save the image
+                with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmpfile:
+                    saved_filepath = tmpfile.name
+                    print(f"\nCapturing image and saving to {saved_filepath}...")
+                    cv2.imwrite(saved_filepath, frame)
+                    print("Image saved.")
                 break
     finally:
         cap.release()
         cv2.destroyAllWindows()
 
-    return saved_filename
+    return saved_filepath
