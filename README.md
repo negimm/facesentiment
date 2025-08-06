@@ -1,59 +1,99 @@
-# Face Sentiment Analysis Agent
+# Face Sentiment Agent
 
-This project is an AI-driven agent that analyzes a person's facial expression from an image to determine their emotion. Based on the detected emotion, it then searches the web to suggest relevant and uplifting content, such as articles, videos, or activities.
+This project is an AI-driven agent that analyzes the sentiment of a person's face from an image and suggests relevant online content (articles, videos, activities, etc.) based on their detected emotion.
+
+## How it Works
+
+The application uses a combination of computer vision and large language models (LLMs) to deliver a personalized content recommendation experience:
+
+1.  **Image Input**: You can either provide a path to an image file or let the application capture a photo of your face using your webcam.
+2.  **Facial Analysis**: A powerful vision-capable LLM (Google's Gemini 1.5 Pro) analyzes the image to detect the primary emotion on the user's face (e.g., happy, sad, surprised).
+3.  **Intelligent Search**: An autonomous LangChain agent, powered by the Gemini 1.5 Flash model, takes the detected emotion as input.
+4.  **Content Recommendation**: The agent uses a search tool (Tavily) to find engaging and relevant web content that matches the user's current mood.
+5.  **Output**: The application presents a list of suggested content, complete with summaries and links.
 
 ## Features
 
--   **Webcam Capture**: Easily capture an image of your face using your webcam.
--   **File-Based Analysis**: Provide a path to an existing image file for analysis via a command-line interface.
--   **Advanced Emotion Detection**: Utilizes Google's Gemini 1.5 Pro vision model for accurate and nuanced facial expression analysis.
--   **Intelligent Content Suggestions**: Employs a LangChain agent with Tavily Search to find personalized content based on your mood.
--   **Modern Python Tooling**: Built with Poetry for robust dependency management.
+-   **Webcam Integration**: Capture a photo directly from your webcam.
+-   **Local Image Analysis**: Analyze an existing image file.
+-   **Emotion-Based Recommendations**: Get content suggestions tailored to your mood.
+-   **Powered by Gemini**: Utilizes Google's state-of-the-art multimodal and instruction-following models.
+-   **Autonomous Agent**: Employs a LangChain ReAct agent for intelligent decision-making and tool use.
 
-## Prerequisites
+## Tech Stack
 
--   Python (version 3.9 to 3.12)
--   [Poetry](https://python-poetry.org/docs/#installation) for dependency management.
--   A **Google Gemini API Key**. You can get one from [Google AI Studio](https://aistudio.google.com/app/apikey).
--   A **Tavily API Key**. You can sign up for one on the [Tavily website](https://tavily.com/).
+-   **Backend**: Python
+-   **Dependency Management**: Poetry
+-   **AI/LLM Framework**: LangChain
+-   **LLM Provider**: Google Gemini
+-   **Web Search**: Tavily API
+-   **Computer Vision**: OpenCV
 
-## Installation
+## Setup and Installation
 
-Follow these steps to set up the project on your local machine.
+### 1. Prerequisites
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <your-repository-url>
-    cd facesentiment
-    ```
+-   Python 3.9 or higher
+-   Poetry installed (`pip install poetry`)
+-   Access to a webcam (for webcam capture feature)
 
-2.  **Install dependencies using Poetry:**
-    This command will create a virtual environment and install all the necessary packages listed in `pyproject.toml`.
-    ```bash
-    poetry install
-    ```
+### 2. Clone the Repository
 
-3.  **Set up environment variables:**
-    Create a file named `.env` in the root of the project directory (`c:\AI\facesentiment\.env`) and add your API keys:
-    ```
-    GOOGLE_API_KEY="your_google_gemini_api_key_here"
-    TAVILY_API_KEY="your_tavily_api_key_here"
-    ```
+```bash
+git clone https://github.com/your-username/face-sentiment-agent.git
+cd face-sentiment-agent
+```
 
-## How to Run the Program
+### 3. API Keys
 
-You can run the application in two ways. Make sure you are in the project's root directory.
+This project requires API keys from two services:
 
-### 1. Using the Webcam
-To launch the application and use your webcam to capture an image:
+-   **Google AI**: For access to the Gemini models.
+    -   Get your key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+-   **Tavily**: For the web search functionality.
+    -   Get your key from the [Tavily website](https://tavily.com/).
+
+Create a `.env` file in the root of the project directory and add your keys:
+
+```
+GOOGLE_API_KEY="YOUR_GOOGLE_API_KEY"
+TAVILY_API_KEY="YOUR_TAVILY_API_KEY"
+```
+
+### 4. Install Dependencies
+
+Install the required Python packages using Poetry:
+
+```bash
+poetry install
+```
+
+## Usage
+
+You can run the application in two ways:
+
+### 1. Analyze an Image from a File
+
+Use the `-i` or `--image` flag to provide the path to an image file.
+
+```bash
+poetry run python src/main.py --image /path/to/your/image.jpg
+```
+
+### 2. Capture an Image from the Webcam
+
+Run the script without any arguments to activate the webcam.
+
 ```bash
 poetry run python src/main.py
 ```
-A window will open showing your webcam feed. Position your face and press the **'c'** key to capture the image and start the analysis.
 
-### 2. Using an Existing Image File
-To analyze an image you already have on your computer, use the `--image` (or `-i`) command-line argument:
-```bash
-poetry run python src/main.py --image "C:\path\to\your\image.jpg"
-```
-The agent will then analyze the provided image and print its content suggestions to the console.
+-   A window will open showing your webcam feed.
+-   Position your face and press the **'c'** key to capture.
+-   Press the **'q'** key to quit without capturing.
+
+The agent will then analyze the image and print the content suggestions to the console.
+
+## License
+
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
